@@ -1,9 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RestTestController;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::group([
+    'namespace' => 'App\Http\Controllers\Blog',
+    'prefix' => 'blog'
+], function () {
+    Route::resource('posts', PostController::class)->names('blog.posts');
 });
 
 Route::middleware([
