@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Blog\Admin;
 
 //use App\Http\Controllers\Controller;
+use App\Http\Requests\BlogCategoryUpdateRequest;
+use App\Http\Requests\BlogCategoryCreateRequest;
 use App\Models\BlogCategory;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
+//use Illuminate\Http\Request;
 
 class CategoryController extends BaseController
 {
@@ -19,14 +21,31 @@ class CategoryController extends BaseController
 
     public function create()
     {
-        //dd(__METHOD__);
-        //
+        $item = new BlogCategory();
+        $categoryList = BlogCategory::all();
+
+        return view('blog.admin.categories.edit', compact('item', 'categoryList'));
     }
 
-    public function store(Request $request)
+    public function store(BlogCategoryCreateRequest $request)
     {
-        //dd(__METHOD__);
-        //
+        $data = $request->input(); 
+    
+        if (empty($data['slug'])) { 
+            $data['slug'] = Str::slug($data['title']); 
+        }
+
+        $item = (new BlogCategory())->create($data); 
+
+        if ($item) {
+            return redirect()
+                ->route('blog.admin.categories.edit', [$item->id])
+                ->with(['success' => 'Успішно збережено']);
+        } else {
+            return back()
+                ->withErrors(['msg' => 'Помилка збереження'])
+                ->withInput();
+        }
     }
 
     public function show(string $id)
@@ -44,7 +63,7 @@ class CategoryController extends BaseController
         return view('blog.admin.categories.edit', compact('item', 'categoryList'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(BlogCategoryUpdateRequest $request, $id)
     {
         //dd(__METHOD__);
         $item = BlogCategory::find($id);
