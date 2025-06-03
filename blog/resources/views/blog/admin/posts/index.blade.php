@@ -3,6 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
+        @include('blog.admin.posts.includes.result_messages')
         <div class="col-md-12">
             <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
                 <a href="{{ route('blog.admin.posts.create') }}" class="btn btn-primary">Додати</a>

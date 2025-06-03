@@ -45,6 +45,35 @@ class BlogPostObserver
         }
     }
     /**
+     * Обробка перед створенням запису.
+     */
+    public function creating(BlogPost $blogPost): void
+    {
+        $this->setPublishedAt($blogPost);
+        $this->setSlug($blogPost);
+        $this->setHtml($blogPost);
+        $this->setUser($blogPost);
+    }
+
+    /**
+     * Встановлюємо значення поля content_html з поля content_raw.
+     */
+    protected function setHtml(BlogPost $blogPost): void
+    {
+        if ($blogPost->isDirty('content_raw')) {
+            // Тут треба зробити генерацію markdown -> html
+            $blogPost->content_html = $blogPost->content_raw;
+        }
+    }
+
+    /**
+     * Якщо user_id не вказано, то встановимо користувача за замовчуванням.
+     */
+    protected function setUser(BlogPost $blogPost): void
+    {
+        $blogPost->user_id = auth()->id() ?? BlogPost::UNKNOWN_USER;
+    }
+    /**
      * Handle the BlogPost "created" event.
      */
     public function created(BlogPost $blogPost): void
