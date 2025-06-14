@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RestTestController;
 use App\Http\Controllers\DiggingDeeperController;
+use App\Http\Controllers\Blog\Admin\CategoryController;
+use App\Http\Controllers\Blog\Admin\PostController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,4 +48,10 @@ Route::group($groupData, function () {
 Route::group(['prefix' => 'digging_deeper'], function () {
     Route::get('collections', [DiggingDeeperController::class, 'collections'])
         ->name('digging_deeper.collections');
+
+    Route::get('process-video', [DiggingDeeperController::class, 'processVideo'])
+        ->name('digging_deeper.processVideo');
+        
+    Route::get('prepare-catalog', [DiggingDeeperController::class, 'prepareCatalog'])
+        ->name('digging_deeper.prepareCatalog');
 });
