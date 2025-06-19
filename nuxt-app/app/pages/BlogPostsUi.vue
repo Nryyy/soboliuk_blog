@@ -65,8 +65,8 @@ const columns: TableColumn<PostTableRow>[] = [
       h(
         'a',
         {
-          href: `/admin/blog/posts/${row.original.id}/edit`,
-          class: 'text-blue-600 hover:text-blue-800 underline'
+          href: `/posts/${row.original.id}`,
+          class: 'text-blue-600 hover:text-blue-800 underline font-medium'
         },
         row.original.title
       )
@@ -74,6 +74,29 @@ const columns: TableColumn<PostTableRow>[] = [
   {
     accessorKey: 'publishedAt',
     header: 'Дата публікації'
+  },
+  {
+    accessorKey: 'actions',
+    header: 'Дії',
+    cell: ({ row }) =>
+      h('div', { class: 'flex gap-2' }, [
+        h(
+          'a',
+          {
+            href: `/posts/${row.original.id}`,
+            class: 'text-blue-600 hover:text-blue-800 text-sm'
+          },
+          'Переглянути'
+        ),
+        h(
+          'a',
+          {
+            href: `/admin/blog/posts/${row.original.id}/edit`,
+            class: 'text-green-600 hover:text-green-800 text-sm'
+          },
+          'Редагувати'
+        )
+      ])
   }
 ]
 

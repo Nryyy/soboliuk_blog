@@ -23,6 +23,7 @@
                   <th class="border px-4 py-2 text-left">Категорія</th>
                   <th class="border px-4 py-2 text-left">Заголовок</th>
                   <th class="border px-4 py-2 text-left">Дата публікації</th>
+                  <th class="border px-4 py-2 text-left">Дії</th>
                 </tr>
               </thead>
               <tbody>
@@ -31,11 +32,27 @@
                   <td class="border px-4 py-2">{{ post.user?.name || 'Невідомо' }}</td>
                   <td class="border px-4 py-2">{{ post.category?.title || 'Без категорії' }}</td>
                   <td class="border px-4 py-2">
-                    <a :href="'/admin/blog/posts/' + post.id + '/edit'" class="text-blue-500 hover:underline">
+                    <NuxtLink :to="`/posts/${post.id}`" class="text-blue-500 hover:underline font-medium">
                       {{ post.title }}
-                    </a>
+                    </NuxtLink>
                   </td>
                   <td class="border px-4 py-2">{{ formatDate(post.published_at) }}</td>
+                  <td class="border px-4 py-2">
+                    <div class="flex gap-2">
+                      <NuxtLink 
+                        :to="`/posts/${post.id}`" 
+                        class="text-blue-500 hover:text-blue-700 text-sm"
+                      >
+                        Переглянути
+                      </NuxtLink>
+                      <a 
+                        :href="`/admin/blog/posts/${post.id}/edit`" 
+                        class="text-green-500 hover:text-green-700 text-sm"
+                      >
+                        Редагувати
+                      </a>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
