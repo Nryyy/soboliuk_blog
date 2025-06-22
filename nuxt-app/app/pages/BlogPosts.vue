@@ -19,5 +19,5 @@
 </template>
 
 <script setup lang="ts">
-// Компонент автоматично імпортується завдяки Nuxt
+import PostsTableComponent from '~~/components/PostsTableComponent.vue';
 </script>

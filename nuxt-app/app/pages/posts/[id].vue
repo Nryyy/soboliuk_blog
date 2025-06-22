@@ -1,155 +1,163 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-gray-50">
     <Head>
-      <Title>{{ post?.title || 'Завантаження...' }}</Title>
+      <Title>{{ post.title }}</Title>
     </Head>
     
-    <div class="min-h-screen bg-gray-50">
-      <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-6">
-          <UButton
-            as="NuxtLink"
-            to="/BlogPostsUi"
-            variant="outline"
-            icon="i-heroicons-arrow-left"
-            class="mb-4"
-          >
-            Повернутися до списку
-          </UButton>
-          <h1 v-if="post" class="text-3xl font-bold text-gray-900">{{ post.title }}</h1>
-        </div>
-      </header>
-      
-      <main class="container mx-auto px-4 py-8">
-        <div v-if="pending" class="flex justify-center">
-          <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin" />
-          <span class="ml-2 text-lg">Завантаження...</span>
-        </div>
+    <UContainer>
+      <div class="py-8 space-y-8">
         
-        <div v-else-if="error" class="text-center">
-          <UAlert
-            icon="i-heroicons-exclamation-triangle"
-            color="warning"
-            variant="solid"
-            title="Помилка"
-            :description="error.data?.message || 'Пост не знайдено'"
-          />
-        </div>
-        
-        <UCard v-else-if="post" class="max-w-4xl mx-auto">
-          <template #header>
-            <div class="flex justify-between items-start">
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ post.title }}</h1>
-                <div class="text-sm text-gray-600 space-y-1">
-                  <div v-if="post.user" class="flex items-center gap-2">
-                    <UIcon name="i-heroicons-user" />
-                    <span>Автор: {{ post.user.name }}</span>
-                  </div>
-                  <div v-if="post.category" class="flex items-center gap-2">
-                    <UIcon name="i-heroicons-tag" />
-                    <span>Категорія: {{ post.category.title }}</span>
-                  </div>
-                  <div v-if="post.published_at" class="flex items-center gap-2">
-                    <UIcon name="i-heroicons-calendar" />
-                    <span>Опубліковано: {{ formatDate(post.published_at) }}</span>
-                  </div>
-                </div>
+        <!-- Header -->
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-4">
+            <UButton @click="router.back()" variant="ghost" color="gray" icon="i-heroicons-arrow-left">
+              Назад
+            </UButton>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">{{ post.title }}</h1>
+              <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                <span v-if="post.user">👤 {{ post.user.name }}</span>
+                <span v-if="post.category">🏷️ {{ post.category.title }}</span>
+                <span v-if="post.published_at">📅 {{ formatDate(post.published_at) }}</span>
               </div>
-              
-              <div class="flex gap-2">
-                <UButton
-                  as="a"
-                  :href="`/admin/blog/posts/${post.id}/edit`"
-                  color="primary"
-                  variant="outline"
-                  icon="i-heroicons-pencil"
-                  size="sm"
-                >
-                  Редагувати
-                </UButton>
-              </div>
-            </div>
-          </template>
-          
-          <div class="prose prose-lg max-w-none">
-            <div v-if="post.excerpt" class="text-lg text-gray-600 mb-6 italic border-l-4 border-blue-500 pl-4">
-              {{ post.excerpt }}
-            </div>
-            <div class="whitespace-pre-line text-gray-800 leading-relaxed">
-              {{ post.content_raw || post.content_html }}
             </div>
           </div>
-          
+          <div class="flex items-center space-x-3">
+            <UButton :to="`/posts/edit-${post.id}`" variant="ghost" color="primary" icon="i-heroicons-pencil">
+              Редагувати
+            </UButton>
+            <UButton to="/BlogPostsUi" variant="ghost" color="gray" icon="i-heroicons-list-bullet">
+              До списку
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Status Badge -->
+        <div v-if="!post.is_published">
+          <UAlert color="yellow" variant="soft">
+            <template #title>Чернетка</template>
+            <template #description>
+              Цей пост ще не опубліковано
+            </template>
+          </UAlert>
+        </div>
+
+        <!-- Post Content -->
+        <UCard>
+          <!-- Excerpt -->
+          <div v-if="post.excerpt" class="mb-6 p-4 bg-gray-50 border-l-4 border-primary-500 rounded-r">
+            <p class="text-lg text-gray-700 italic">{{ post.excerpt }}</p>
+          </div>
+
+          <!-- Main Content -->
+          <div class="prose prose-lg max-w-none">
+            <div v-html="post.content_html || post.content_raw.replace(/\n/g, '<br>')"></div>
+          </div>
+
+          <!-- Footer -->
           <template #footer>
-            <div class="flex justify-between items-center">
-              <div class="text-sm text-gray-500">
-                Останнє оновлення: {{ formatDate(post.updated_at) }}
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <div class="flex items-center space-x-4">
+                <span>ID: {{ post.id }}</span>
+                <span v-if="post.updated_at">Оновлено: {{ formatDate(post.updated_at) }}</span>
               </div>
-              <div class="flex gap-2">
-                <UButton
-                  as="NuxtLink"
-                  to="/BlogPostsUi"
-                  variant="outline"
-                  icon="i-heroicons-list-bullet"
-                >
-                  До списку постів
-                </UButton>
+              <div class="flex items-center space-x-2">
+                <UBadge v-if="post.is_published" color="green" variant="soft">
+                  Опубліковано
+                </UBadge>
+                <UBadge v-else color="yellow" variant="soft">
+                  Чернетка
+                </UBadge>
               </div>
             </div>
           </template>
         </UCard>
-      </main>
-    </div>
+
+        <!-- Related Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Author Info -->
+          <UCard v-if="post.user">
+            <template #header>
+              <h3 class="text-lg font-semibold flex items-center gap-2">
+                <Icon name="i-heroicons-user" />
+                Автор
+              </h3>
+            </template>
+            <div class="space-y-2">
+              <div><strong>Ім'я:</strong> {{ post.user.name }}</div>
+              <div><strong>Email:</strong> {{ post.user.email }}</div>
+            </div>
+          </UCard>
+
+          <!-- Category Info -->
+          <UCard v-if="post.category">
+            <template #header>
+              <h3 class="text-lg font-semibold flex items-center gap-2">
+                <Icon name="i-heroicons-tag" />
+                Категорія
+              </h3>
+            </template>
+            <div class="space-y-2">
+              <div><strong>Назва:</strong> {{ post.category.title }}</div>
+              <div><strong>Slug:</strong> {{ post.category.slug }}</div>
+              <UButton :to="`/categories/${post.category.slug}`" size="sm" variant="ghost" color="primary">
+                Переглянути категорію
+              </UButton>
+            </div>
+          </UCard>
+        </div>
+      </div>
+    </UContainer>
   </div>
 </template>
 
 <script setup lang="ts">
 interface User {
-  id: number;
-  name: string;
+  id: number
+  name: string
+  email: string
 }
 
 interface Category {
-  id: number;
-  title: string;
+  id: number
+  title: string
+  slug: string
 }
 
 interface Post {
-  id: number;
-  title: string;
-  content_raw?: string;
-  content_html?: string;
-  excerpt?: string;
-  published_at: string;
-  updated_at: string;
-  user: User;
-  category: Category;
+  id: number
+  title: string
+  content_raw: string
+  content_html: string
+  excerpt: string
+  slug: string
+  published_at: string
+  updated_at: string
+  user: User
+  category: Category
+  is_published: boolean
 }
 
 const route = useRoute()
+const router = useRouter()
 const postId = route.params.id
 
-const { data: postResponse, pending, error } = await useFetch<{success: boolean, data: Post}>(`http://localhost/api/blog/posts/${postId}`)
+const { data: postResponse, pending, error } = await useFetch<{ success: boolean, data: Post }>(`http://localhost/api/blog/posts/${postId}`)
 
-const post = computed(() => postResponse.value?.data)
+if (error.value || !postResponse.value?.data) {
+  throw createError({ statusCode: 404, statusMessage: 'Пост не знайдено' })
+}
+
+const post = postResponse.value.data
 
 const formatDate = (dateString: string) => {
-  if (!dateString) return 'Невідомо';
+  if (!dateString) return 'Невідомо'
   return new Date(dateString).toLocaleDateString('uk-UA', {
     year: 'numeric',
     month: 'long', 
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  });
-};
-
-// Додаємо мета-теги для SEO
-useSeoMeta({
-  title: () => post.value?.title || 'Пост',
-  ogTitle: () => post.value?.title,
-  description: () => post.value?.excerpt || post.value?.content_raw?.substring(0, 160) || 'Читайте пост у нашому блозі',
-  ogDescription: () => post.value?.excerpt || post.value?.content_raw?.substring(0, 160)
-})
+  })
+}
 </script>
